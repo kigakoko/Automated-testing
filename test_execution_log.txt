@@ -1,0 +1,8 @@
+NUnit, VerifyContactPageInformation executed in: 3165 ms
+NUnit, VerifyNavigationToAboutEHUPage executed in: 6247 ms
+NUnit, VerifySearchFunctionality executed in: 9752 ms
+NUnit, VerifyLanguageChangeToLithuanian executed in: 11975 ms
+XUnit, VerifyContactPageInformation executed in: 3860 ms
+XUnit, VerifySearchFunctionality executed in: 7963 ms
+XUnit, VerifyLanguageChangeToLithuanian executed in: 8597 ms
+XUnit, VerifyNavigationToAboutEHUPage executed in: 7139 ms

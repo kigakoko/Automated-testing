@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium;
 
-namespace WebUITests.Drivers;
+namespace XUnitSolution.Drivers;
 
 public static class WebDriverManager
 {
