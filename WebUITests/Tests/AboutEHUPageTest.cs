@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Diagnostics;
 using WebUITests.Drivers;
+using WebUITests.PageObjects;
 
 namespace WebUITests.Tests;
 
@@ -11,15 +12,16 @@ namespace WebUITests.Tests;
 [Parallelizable]
 public class AboutEHUPageTest
 {
-	IWebDriver driver = null!;
+	private IWebDriver driver = null!;
 	private Stopwatch stopwatch = null!;
+	private AboutPage aboutPage = null!;
 
 	[SetUp]
 	public void Setup()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
+		aboutPage = new AboutPage(driver);
 	}
 
 	[Test]
@@ -27,15 +29,13 @@ public class AboutEHUPageTest
 	public void VerifyNavigationToAboutEHUPage(string url, string text)
 	{
 		stopwatch.Start();
-		driver.Navigate().GoToUrl(url);
 
-		IWebElement aboutLink = driver.FindElement(By.LinkText(text));
-		aboutLink.Click();
+		aboutPage.NavigateTo(url);
+		aboutPage.ClickAboutLink();
 
-		Assert.That(driver.Title, Is.EqualTo(text));
+		Assert.That(aboutPage.GetPageTitle(), Is.EqualTo(text));
+		Assert.That(aboutPage.GetHeaderText(), Does.Contain(text));
 
-		IWebElement header = driver.FindElement(By.TagName("h1"));
-		Assert.That(header.Text, Does.Contain(text));
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("NUnit, VerifyNavigationToAboutEHUPage", stopwatch);
 	}
@@ -43,6 +43,6 @@ public class AboutEHUPageTest
 	[TearDown]
 	public void Teardown()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }

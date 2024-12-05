@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Diagnostics;
 using WebUITests.Drivers;
+using WebUITests.PageObjects;
 
 namespace WebUITests.Tests;
 
@@ -11,14 +12,14 @@ namespace WebUITests.Tests;
 [Category("SearchFunctionalityTest")]
 public class SearchFunctionalityTest
 {
-	IWebDriver driver = null!;
+	private IWebDriver driver = null!;
 	private Stopwatch stopwatch = null!;
+	private SearchPage searchPage = null!;
 
 	[SetUp]
 	public void Setup()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
 	}
 
@@ -27,15 +28,14 @@ public class SearchFunctionalityTest
 	public void VerifySearchFunctionality(string url, string searchTerm, string className)
 	{
 		stopwatch.Start();
-		driver.Navigate().GoToUrl(url);
 
-		string searchUrl = $"{url}?s={Uri.EscapeDataString(searchTerm)}";
-		driver.Navigate().GoToUrl(searchUrl);
+		searchPage = new SearchPage(driver, className);
+		searchPage.NavigateTo(url);
+		searchPage.Search(url, searchTerm);
 
-		Assert.That(driver.Url, Is.EqualTo(searchUrl));
+		Assert.That(searchPage.GetCurrentUrl(), Is.EqualTo($"{url}?s={Uri.EscapeDataString(searchTerm)}"));
+		Assert.That(searchPage.GetSearchResultsText(), Does.Contain("results found."));
 
-		IWebElement searchResults = driver.FindElement(By.ClassName(className));
-		Assert.That(searchResults.Text, Does.Contain("results found."));
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("NUnit, VerifySearchFunctionality", stopwatch);
 	}
@@ -43,6 +43,6 @@ public class SearchFunctionalityTest
 	[TearDown]
 	public void Teardown()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }

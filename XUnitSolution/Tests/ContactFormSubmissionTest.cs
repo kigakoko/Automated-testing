@@ -1,8 +1,8 @@
 ﻿using Common;
 using OpenQA.Selenium;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using XUnitSolution.Drivers;
+using XUnitSolution.PageObjects;
 
 namespace XUnitSolution.Tests;
 
@@ -10,12 +10,13 @@ public class ContactPageInfoTest : IDisposable
 {
 	private readonly IWebDriver driver;
 	private readonly Stopwatch stopwatch;
+	private readonly ContactPage contactPage;
 
 	public ContactPageInfoTest()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
+		contactPage = new ContactPage(driver);
 	}
 
 	[Theory]
@@ -24,23 +25,19 @@ public class ContactPageInfoTest : IDisposable
 	public void VerifyContactPageInformation(string url, string emailPattern, string phonePattern)
 	{
 		stopwatch.Start();
+
 		driver.Navigate().GoToUrl(url);
 
-		string pageSource = driver.PageSource;
+		Assert.True(contactPage.ContainsValidEmail(emailPattern), "No valid email address found on the page.");
+		Assert.True(contactPage.ContainsValidPhoneNumber(phonePattern), "No valid phone number found on the page.");
+		Assert.True(contactPage.ContainsFacebookLink(), "Facebook link not found on the page.");
 
-		var emailMatch = Regex.Match(pageSource, emailPattern);
-		Assert.True(emailMatch.Success, "No valid email address found on the page.");
-
-		var phoneMatch = Regex.Match(pageSource, phonePattern);
-		Assert.True(phoneMatch.Success, "No valid phone number found on the page.");
-
-		Assert.Contains("Facebook", pageSource, StringComparison.OrdinalIgnoreCase);
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("XUnit, VerifyContactPageInformation", stopwatch);
 	}
 
 	public void Dispose()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }

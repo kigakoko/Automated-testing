@@ -2,8 +2,8 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using WebUITests.Drivers;
+using WebUITests.PageObjects;
 
 namespace WebUITests.Tests;
 
@@ -12,15 +12,16 @@ namespace WebUITests.Tests;
 [Category("ContactPageInfoTest")]
 public class ContactPageInfoTest
 {
-	IWebDriver driver = null!;
+	private IWebDriver driver = null!;
 	private Stopwatch stopwatch = null!;
+	private ContactPage contactPage = null!;
 
 	[SetUp]
 	public void Setup()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
+		contactPage = new ContactPage(driver);
 	}
 
 	[Test]
@@ -28,17 +29,13 @@ public class ContactPageInfoTest
 	public void VerifyContactPageInformation(string url, string emailPattern, string phonePattern)
 	{
 		stopwatch.Start();
-		driver.Navigate().GoToUrl(url);
 
-		string pageSource = driver.PageSource;
+		contactPage.NavigateTo(url);
 
-		var emailMatch = Regex.Match(pageSource, emailPattern);
-		Assert.That(emailMatch.Success, Is.True, "No valid email address found on the page.");
+		Assert.That(contactPage.ContainsValidEmail(emailPattern), Is.True, "No valid email address found on the page.");
+		Assert.That(contactPage.ContainsValidPhoneNumber(phonePattern), Is.True, "No valid phone number found on the page.");
+		Assert.That(contactPage.ContainsFacebookLink(), Is.True, "Facebook link not found on the page.");
 
-		var phoneMatch = Regex.Match(pageSource, phonePattern);
-		Assert.That(phoneMatch.Success, Is.True, "No valid phone number found on the page.");
-
-		Assert.That(pageSource, Does.Contain("Facebook"), "Facebook link not found on the page.");
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("NUnit, VerifyContactPageInformation", stopwatch);
 	}
@@ -46,6 +43,6 @@ public class ContactPageInfoTest
 	[TearDown]
 	public void Teardown()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }

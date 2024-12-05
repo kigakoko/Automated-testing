@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Diagnostics;
 using WebUITests.Drivers;
+using WebUITests.PageObjects;
 
 namespace WebUITests.Tests;
 
@@ -11,33 +12,33 @@ namespace WebUITests.Tests;
 [Category("LanguageChangeTest")]
 public class LanguageChangeTest
 {
-	IWebDriver driver = null!;
+	private IWebDriver driver = null!;
 	private Stopwatch stopwatch = null!;
+	private HomePage homePage = null!;
 
 	[SetUp]
 	public void Setup()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
+		homePage = new HomePage(driver);
 	}
 
 	[Test]
-	[TestCase("https://en.ehu.lt/", ".language-switcher", "LT")]
-	public void VerifyLanguageChangeToLithuanian(string url, string selector, string language)
+	[TestCase("https://en.ehu.lt/")]
+	public void VerifyLanguageChangeToLithuanian(string url)
 	{
 		stopwatch.Start();
-		driver.Navigate().GoToUrl(url);
 
-		IWebElement languageSwitcher = driver.FindElement(By.CssSelector(selector));
-		languageSwitcher.Click();
-		IWebElement lithuanianOption = driver.FindElement(By.LinkText(language));
-		lithuanianOption.Click();
+		homePage.NavigateTo(url);
+		homePage.ClickLanguageSwitcher();
+		homePage.SelectLithuanianLanguage();
 
-		Assert.That(driver.Url, Does.Contain("https://lt.ehu.lt/"));
+		Assert.That(homePage.GetCurrentUrl(), Does.Contain("https://lt.ehu.lt/"));
 
-		IWebElement header = driver.FindElement(By.TagName("h1"));
-		Assert.That(header.Text, Does.Contain("Kodėl EHU?\r\nKas daro EHU unikaliu?"));
+		string headerText = homePage.GetHeaderText();
+		Assert.That(headerText, Does.Contain("Kodėl EHU?\r\nKas daro EHU unikaliu?"));
+
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("NUnit, VerifyLanguageChangeToLithuanian", stopwatch);
 	}
@@ -45,6 +46,6 @@ public class LanguageChangeTest
 	[TearDown]
 	public void Teardown()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }

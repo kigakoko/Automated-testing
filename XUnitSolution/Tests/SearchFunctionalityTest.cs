@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using System.Diagnostics;
 using XUnitSolution.Drivers;
+using XUnitSolution.PageObjects;
 
 namespace XUnitSolution.Tests;
 
@@ -9,35 +10,36 @@ public class SearchFunctionalityTest : IDisposable
 {
 	private readonly IWebDriver driver;
 	private readonly Stopwatch stopwatch;
+	private readonly SearchPage searchPage;
 
 	public SearchFunctionalityTest()
 	{
-		driver = WebDriverManager.GetFirefoxDriver();
-		driver.Manage().Window.Maximize();
+		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
+		searchPage = new SearchPage(driver, "search-filter__result-count");
 	}
 
 	[Theory]
 	[Trait("Category", "SearchFunctionalityTest")]
-	[InlineData("https://en.ehu.lt/", "study programs", "search-filter__result-count")]
-	public void VerifySearchFunctionality(string url, string searchTerm, string className)
+	[InlineData("https://en.ehu.lt/", "study programs")]
+	public void VerifySearchFunctionality(string url, string searchTerm)
 	{
 		stopwatch.Start();
-		driver.Navigate().GoToUrl(url);
+
+		searchPage.Search(url, searchTerm);
 
 		string searchUrl = $"{url}?s={Uri.EscapeDataString(searchTerm)}";
-		driver.Navigate().GoToUrl(searchUrl);
-
 		Assert.Equal(searchUrl, driver.Url);
 
-		IWebElement searchResults = driver.FindElement(By.ClassName(className));
-		Assert.Contains("results found.", searchResults.Text);
+		string resultsText = searchPage.GetSearchResultsText();
+		Assert.Contains("results found.", resultsText);
+
 		stopwatch.Stop();
 		TestLogger.LogExecutionTime("XUnit, VerifySearchFunctionality", stopwatch);
 	}
 
 	public void Dispose()
 	{
-		driver.Quit();
+		WebDriverSingleton.QuitDriver();
 	}
 }
