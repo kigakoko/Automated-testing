@@ -10,9 +10,9 @@ using WebUITests.Tests.Base;
 namespace WebUITests.Tests;
 
 [TestFixture]
-[Category("AboutEHUPageTest")]
+[Category("AboutEhuPageTest")]
 [Parallelizable]
-public class AboutEHUPageTest : BaseTest
+public class AboutEhuPageTest : BaseTest
 {
 	private IWebDriver driver = null!;
 	private Stopwatch stopwatch = null!;
@@ -21,7 +21,7 @@ public class AboutEHUPageTest : BaseTest
 	[SetUp]
 	public void Setup()
 	{
-		Log.Information("Initializing test setup for AboutEHUPageTest...");
+		Log.Information("Initializing test setup for AboutEhuPageTest...");
 		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
 		aboutPage = new AboutPage(driver);

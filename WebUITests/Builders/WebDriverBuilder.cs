@@ -7,7 +7,7 @@ namespace WebUITests.Builders;
 public class WebDriverBuilder
 {
 	private string _browser = "Firefox";
-	private bool _headless = false;
+	private bool _headless = true;
 	private bool _maximizeWindow = true;
 
 	public WebDriverBuilder SetBrowser(string browser)

@@ -9,13 +9,13 @@ using XUnitSolution.Tests.Base;
 
 namespace XUnitSolution.Tests;
 
-public class AboutEHUPageTest : BaseTest, IDisposable
+public class AboutEhuPageTest : BaseTest, IDisposable
 {
 	private readonly IWebDriver driver;
 	private readonly Stopwatch stopwatch;
 	private readonly AboutPage aboutPage;
 
-	public AboutEHUPageTest() : base()
+	public AboutEhuPageTest() : base()
 	{
 		LoggerSetup.ConfigureLogging();
 		driver = WebDriverSingleton.GetDriver();
@@ -24,7 +24,7 @@ public class AboutEHUPageTest : BaseTest, IDisposable
 	}
 
 	[Theory]
-	[Trait("Category", "AboutEHUPageTest")]
+	[Trait("Category", "AboutEhuPageTest")]
 	[InlineData("https://en.ehu.lt/", "About")]
 	public void VerifyNavigationToAboutEHUPage(string url, string text)
 	{
