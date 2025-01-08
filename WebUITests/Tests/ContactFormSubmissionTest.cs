@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AventStack.ExtentReports;
+using FluentAssertions;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using Serilog;
@@ -32,37 +33,43 @@ public class ContactPageInfoTest : BaseTest
 	[TestCase("https://en.ehu.lt/contacts/", @"[\w\.\-]+@[\w\-]+(\.[\w]{2,3})+", @"\+\d{1,3}\s\d\s\d{3}\s\d{4}")]
 	public void VerifyContactPageInformation(string url, string emailPattern, string phonePattern)
 	{
+		Test ??= extent.CreateTest("VerifyContactPageInformation",
+			$"Validates the email, phone number, and Facebook link on the contact page at: {url}");
+
 		Log.Information("Test 'VerifyContactPageInformation' started.");
 		stopwatch.Start();
 
 		try
 		{
-			Log.Information("Navigating to URL: {Url}", url);
+			Test.Log(Status.Info, "Navigating to URL: " + url);
 			contactPage.NavigateTo(url);
 
-			Log.Information("Validating email pattern.");
+			Test.Log(Status.Info, "Validating email pattern.");
 			contactPage.ContainsValidEmail(emailPattern)
-				.Should().BeTrue("a valid email address should be present on the page.");
+				.Should().BeFalse("Email validation should fail on purpose for testing.");
 
-			Log.Information("Validating phone pattern.");
+			Test.Log(Status.Info, "Validating phone pattern.");
 			contactPage.ContainsValidPhoneNumber(phonePattern)
 				.Should().BeTrue("a valid phone number should be present on the page.");
 
-			Log.Information("Validating Facebook link.");
+			Test.Log(Status.Info, "Validating Facebook link.");
 			contactPage.ContainsFacebookLink()
 				.Should().BeTrue("the page should contain a link or reference to Facebook.");
 
-			Log.Information("Assertions passed successfully for test 'VerifyContactPageInformation'.");
+			Test.Pass("All assertions passed successfully.");
 		}
 		catch (Exception ex)
 		{
+			Test.Fail("Test failed due to exception: " + ex.Message);
+			Test.AddScreenCaptureFromPath(ExtentManager.CaptureScreenshot("VerifyContactPageInformation", driver));
 			Log.Error(ex, "An error occurred during the test execution.");
 			throw;
 		}
 		finally
 		{
 			stopwatch.Stop();
-			Log.Information("NUnit, VerifyContactPageInformation", stopwatch.ElapsedMilliseconds);
+			Log.Information("Execution Time: {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+			Test.Log(Status.Info, $"Execution Time: {stopwatch.ElapsedMilliseconds}ms");
 		}
 	}
 

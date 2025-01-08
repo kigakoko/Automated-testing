@@ -25,43 +25,46 @@ public class AboutEhuPageTest : BaseTest
 		driver = WebDriverSingleton.GetDriver();
 		stopwatch = new Stopwatch();
 		aboutPage = new AboutPage(driver);
-		Log.Information("Test setup completed.");
 	}
 
 	[Test]
 	[TestCase("https://en.ehu.lt/", "About")]
 	public void VerifyNavigationToAboutEHUPage(string url, string text)
 	{
+		Test ??= extent.CreateTest("VerifyNavigationToAboutEHUPage",
+			$"Validates navigation and title/header on the About page with URL: {url}");
+
 		Log.Information("Test 'VerifyNavigationToAboutEHUPage' started.");
 		stopwatch.Start();
 
 		try
 		{
-			Log.Information("Navigating to URL: {Url}", url);
+			Test.Log(AventStack.ExtentReports.Status.Info, "Navigating to URL: " + url);
 			aboutPage.NavigateTo(url);
 
-			Log.Information("Clicking 'About' link.");
+			Test.Log(AventStack.ExtentReports.Status.Info, "Clicking 'About' link.");
 			aboutPage.ClickAboutLink();
 
-			Log.Information("Validating page title is '{ExpectedTitle}'.", text);
+			Test.Log(AventStack.ExtentReports.Status.Info, "Validating page title and header.");
 			aboutPage.GetPageTitle()
 				.Should().Be(text, because: "the page title should match the 'About' section.");
-
-			Log.Information("Validating header text contains '{ExpectedText}'.", text);
 			aboutPage.GetHeaderText()
 				.Should().Contain(text, because: "the header text should contain the expected value.");
 
-			Log.Information("Assertions passed successfully for test 'VerifyNavigationToAboutEHUPage'.");
+			Test.Pass("All assertions passed successfully.");
 		}
 		catch (Exception ex)
 		{
+			Test.Fail("Test failed due to exception: " + ex.Message);
+			Test.AddScreenCaptureFromPath(ExtentManager.CaptureScreenshot("VerifyNavigationToAboutEHUPage", driver));
 			Log.Error(ex, "An error occurred during the test execution.");
 			throw;
 		}
 		finally
 		{
 			stopwatch.Stop();
-			Log.Information("NUnit, VerifyNavigationToAboutEHUPage", stopwatch.ElapsedMilliseconds);
+			Log.Information("Execution Time: {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
+			Test.Log(AventStack.ExtentReports.Status.Info, $"Execution Time: {stopwatch.ElapsedMilliseconds}ms");
 		}
 	}
 

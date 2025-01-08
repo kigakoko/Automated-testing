@@ -32,6 +32,11 @@ public class LanguageChangeTest : BaseTest
 	[TestCase("https://en.ehu.lt/")]
 	public void VerifyLanguageChangeToLithuanian(string url)
 	{
+		Test = extent.CreateTest(TestContext.CurrentContext.Test.Name,
+			$"Test is skipped: {TestContext.CurrentContext.Test.Properties.Get("Category")}");
+
+		Test.Skip("The test is skipped because it is temporarily disabled.");
+
 		Log.Information("Test 'VerifyLanguageChangeToLithuanian' started.");
 		stopwatch.Start();
 
@@ -58,6 +63,8 @@ public class LanguageChangeTest : BaseTest
 		}
 		catch (Exception ex)
 		{
+			Test.Info("Test marked as inconclusive due to an exception.");
+			Test.Fail("Test failed due to exception: " + ex.Message);
 			Log.Error(ex, "An error occurred during the test execution.");
 			throw;
 		}
